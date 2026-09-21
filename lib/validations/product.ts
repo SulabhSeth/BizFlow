@@ -9,10 +9,13 @@ export const productCategories = [
   "Other",
 ] as const;
 
+export const pricingUnits = ["piece", "kg"] as const;
+
 export const productSchema = z.object({
   name: z.string().trim().min(2, "Enter the product's name"),
   category: z.enum(productCategories, { message: "Choose a category" }),
   description: z.string().trim().optional().or(z.literal("")),
+  pricingUnit: z.enum(pricingUnits).default("piece"),
   price: z.coerce
     .number({ message: "Enter a price" })
     .positive("Price must be greater than 0"),

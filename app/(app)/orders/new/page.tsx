@@ -15,10 +15,17 @@ export default async function NewOrderPage({
     supabase.from("customers").select("id, name, phone").order("name"),
     supabase
       .from("products")
-      .select("id, name, price")
+      .select("id, name, price, pricing_unit")
       .eq("is_active", true)
       .order("name"),
   ]);
+
+  const productOptions = (products ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    pricingUnit: p.pricing_unit as "piece" | "kg",
+  }));
 
   return (
     <div className="px-6 py-8 md:px-10">
@@ -34,7 +41,7 @@ export default async function NewOrderPage({
       <div className="mt-6 max-w-3xl">
         <OrderForm
           customers={customers ?? []}
-          products={products ?? []}
+          products={productOptions}
           initialCustomerId={customer}
         />
       </div>

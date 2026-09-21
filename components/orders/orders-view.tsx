@@ -8,7 +8,10 @@ import { Select } from "@/components/ui/select";
 import { Table, Thead, Tbody, Tr, Th, Td } from "@/components/ui/table";
 import { Badge, orderStatusTone, paymentStatusTone } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { orderStatuses } from "@/lib/validations/order";
 import { formatCurrency, formatDate } from "@/lib/format";
+
+const paymentStatuses = ["Paid", "Partially Paid", "Pending"] as const;
 
 export interface OrderRow {
   id: string;
@@ -23,8 +26,8 @@ export interface OrderRow {
   status: string;
 }
 
-const orderStatuses = ["New", "Confirmed", "Preparing", "Ready", "Delivered", "Cancelled"] as const;
-const paymentStatuses = ["Paid", "Partially Paid", "Pending"] as const;
+// const orderStatuses = ["New", "Confirmed", "Preparing", "Ready", "Delivered", "Cancelled"] as const;
+// const paymentStatuses = ["Paid", "Partially Paid", "Pending"] as const;
 
 export function OrdersView({ orders }: { orders: OrderRow[] }) {
   const [query, setQuery] = useState("");

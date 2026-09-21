@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { createProduct, updateProduct, type ProductFormState } from "@/actions/products";
-import { productCategories } from "@/lib/validations/product";
+import { productCategories, pricingUnits } from "@/lib/validations/product";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
@@ -16,6 +16,7 @@ export interface ProductFormValues {
   name: string;
   category: string;
   description: string | null;
+  pricingUnit: "piece" | "kg";
   price: number;
 }
 
@@ -32,6 +33,7 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
   const toast = useToast();
   const action = product ? updateProduct.bind(null, product.id) : createProduct;
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [pricingUnit, setPricingUnit] = useState<"piece" | "kg">(product?.pricingUnit ?? "piece");
 
   useEffect(() => {
     if (state.success) {
@@ -61,7 +63,25 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
             ))}
           </Select>
         </FormField>
-        <FormField label="Price (₹)" htmlFor="price" error={state.fieldErrors?.price}>
+        <FormField label="Sold by" htmlFor="pricingUnit" error={state.fieldErrors?.pricingUnit}>
+          <Select
+            id="pricingUnit"
+            name="pricingUnit"
+            value={pricingUnit}
+            onChange={(e) => setPricingUnit(e.target.value as "piece" | "kg")}
+          >
+            {pricingUnits.map((u) => (
+              <option key={u} value={u}>
+                {u === "piece" ? "Piece (fixed price)" : "Weight (₹ per kg)"}
+              </option>
+            ))}
+          </Select>
+        </FormField>
+        <FormField
+          label={pricingUnit === "kg" ? "Price per kg (₹)" : "Price (₹)"}
+          htmlFor="price"
+          error={state.fieldErrors?.price}
+        >
           <Input
             id="price"
             name="price"
@@ -69,7 +89,7 @@ export function ProductFormModal({ open, onClose, product }: ProductFormModalPro
             min="0"
             step="1"
             defaultValue={product?.price}
-            placeholder="1200"
+            placeholder={pricingUnit === "kg" ? "800" : "1200"}
           />
         </FormField>
         <FormField label="Description" htmlFor="description" error={state.fieldErrors?.description}>

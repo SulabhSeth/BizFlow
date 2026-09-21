@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { OrdersView, type OrderRow } from "@/components/orders/orders-view";
-import { paymentStatusFor, itemsSummaryFor } from "@/lib/order-utils";
+// import { paymentStatusFor, itemsSummaryFor } from "@/lib/order-utils";
+import {paymentStatusFor, itemsSummaryFor} from "@/lib/order-utils";
 
 export default async function OrdersPage() {
   const supabase = await createClient();

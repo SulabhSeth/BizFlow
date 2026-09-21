@@ -29,6 +29,7 @@ function parseProductForm(formData: FormData) {
     name: formData.get("name"),
     category: formData.get("category"),
     description: formData.get("description"),
+    pricingUnit: formData.get("pricingUnit") || "piece",
     price: formData.get("price"),
   });
 }
@@ -50,6 +51,7 @@ export async function createProduct(
     name: parsed.data.name,
     category: parsed.data.category,
     description: parsed.data.description || null,
+    pricing_unit: parsed.data.pricingUnit,
     price: parsed.data.price,
   });
 
@@ -79,6 +81,7 @@ export async function updateProduct(
       name: parsed.data.name,
       category: parsed.data.category,
       description: parsed.data.description || null,
+      pricing_unit: parsed.data.pricingUnit,
       price: parsed.data.price,
     })
     .eq("id", productId);

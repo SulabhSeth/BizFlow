@@ -4,25 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentBusinessId } from "@/lib/supabase/business";
-import { orderSchema } from "@/lib/validations/order";
-
-
-export interface OrderFormState {
-  error?: string;
-  fieldErrors?: Record<string, string>;
-}
-
-function fieldErrorsFromZod(issues: { path: PropertyKey[]; message: string }[]) {
-  const fieldErrors: Record<string, string> = {};
-  for (const issue of issues) {
-    const key = String(issue.path[0]);
-    if (!fieldErrors[key]) fieldErrors[key] = issue.message;
-  }
-  return fieldErrors;
-}
-
-
-export const orderStatuses = ["New", "Confirmed", "Preparing", "Ready", "Delivered", "Cancelled"] as const;
+import { orderSchema, orderStatuses } from "@/lib/validations/order";
+import { calcItemTotal } from "@/lib/order-utils";
 
 export async function updateOrderStatus(
   orderId: string,
@@ -45,6 +28,21 @@ export async function updateOrderStatus(
   revalidatePath("/dashboard");
   return { success: true };
 }
+
+export interface OrderFormState {
+  error?: string;
+  fieldErrors?: Record<string, string>;
+}
+
+function fieldErrorsFromZod(issues: { path: PropertyKey[]; message: string }[]) {
+  const fieldErrors: Record<string, string> = {};
+  for (const issue of issues) {
+    const key = String(issue.path[0]);
+    if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+  }
+  return fieldErrors;
+}
+
 /**
  * Generates a per-business order number like "ORD-0007" and retries
  * on a rare race with another concurrent insert (unique constraint on
@@ -95,7 +93,10 @@ export async function createOrder(
   const { customerId, deliveryDate, deliveryTime, customerNotes, internalNotes, discount, deliveryFee, advancePaid, paymentMethod, items } =
     parsed.data;
 
-  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  const subtotal = items.reduce(
+    (sum, item) => sum + calcItemTotal(item.quantity, item.unitPrice, item.unit),
+    0,
+  );
   const total = Math.max(subtotal - discount + deliveryFee, 0);
 
   if (advancePaid > total) {
@@ -136,9 +137,10 @@ export async function createOrder(
       order_id: order.id,
       product_id: item.productId,
       name: item.name,
+      unit: item.unit,
       quantity: item.quantity,
       unit_price: item.unitPrice,
-      total: item.quantity * item.unitPrice,
+      total: calcItemTotal(item.quantity, item.unitPrice, item.unit),
     })),
   );
 
@@ -147,12 +149,12 @@ export async function createOrder(
     return { error: "The order was created, but its items failed to save. Please edit the order to add them." };
   }
 
-  if (advancePaid > 0 && paymentMethod) {
+  if (advancePaid > 0) {
     const { error: paymentError } = await supabase.from("payments").insert({
       business_id: businessId,
       order_id: order.id,
       amount: advancePaid,
-      method: paymentMethod,
+      method: paymentMethod ?? "Cash",
       payment_date: new Date().toISOString().slice(0, 10),
     });
 

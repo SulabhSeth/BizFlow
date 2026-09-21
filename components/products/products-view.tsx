@@ -13,7 +13,7 @@ import { ProductFormModal, type ProductFormValues } from "./product-form";
 import { productCategories } from "@/lib/validations/product";
 import { setProductActive } from "@/actions/products";
 import { useToast } from "@/components/ui/toast";
-import { formatCurrency } from "@/lib/format";
+import { formatPrice } from "@/lib/format";
 
 export interface ProductRow extends ProductFormValues {
   isActive: boolean;
@@ -156,7 +156,7 @@ export function ProductsView({ products }: { products: ProductRow[] }) {
                         )}
                       </Td>
                       <Td className="text-charcoal-muted">{p.category}</Td>
-                      <Td>{formatCurrency(p.price)}</Td>
+                      <Td>{formatPrice(p.price, p.pricingUnit)}</Td>
                       <Td>
                         <Badge tone={p.isActive ? "success" : "neutral"}>
                           {p.isActive ? "Active" : "Inactive"}
@@ -208,7 +208,7 @@ export function ProductsView({ products }: { products: ProductRow[] }) {
                     </Badge>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
-                    <p className="font-medium text-charcoal">{formatCurrency(p.price)}</p>
+                    <p className="font-medium text-charcoal">{formatPrice(p.price, p.pricingUnit)}</p>
                     <div className="flex gap-2">
                       <button
                         onClick={() => {

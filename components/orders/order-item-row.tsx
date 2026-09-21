@@ -3,12 +3,14 @@
 import { Trash2 } from "lucide-react";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { calcItemTotal, type PricingUnit } from "@/lib/order-utils";
 import { formatCurrency } from "@/lib/format";
 
 export interface OrderItemState {
   key: string;
   productId: string | null;
   name: string;
+  unit: PricingUnit;
   quantity: number;
   unitPrice: number;
 }
@@ -17,6 +19,7 @@ interface ProductOption {
   id: string;
   name: string;
   price: number;
+  pricingUnit: PricingUnit;
 }
 
 interface OrderItemRowProps {
@@ -31,15 +34,23 @@ const CUSTOM_VALUE = "__custom__";
 
 export function OrderItemRow({ item, products, onChange, onRemove, canRemove }: OrderItemRowProps) {
   const isCustom = item.productId === null;
+  const isWeight = item.unit === "kg";
 
   function handleProductSelect(value: string) {
     if (value === CUSTOM_VALUE) {
-      onChange({ ...item, productId: null, name: "", unitPrice: 0 });
+      onChange({ ...item, productId: null, name: "", unit: "piece", unitPrice: 0, quantity: 1 });
       return;
     }
     const product = products.find((p) => p.id === value);
     if (!product) return;
-    onChange({ ...item, productId: product.id, name: product.name, unitPrice: product.price });
+    onChange({
+      ...item,
+      productId: product.id,
+      name: product.name,
+      unit: product.pricingUnit,
+      unitPrice: product.price,
+      quantity: product.pricingUnit === "kg" ? 500 : 1,
+    });
   }
 
   return (
@@ -51,32 +62,48 @@ export function OrderItemRow({ item, products, onChange, onRemove, canRemove }: 
           {products.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}
+              {p.pricingUnit === "kg" ? " (by weight)" : ""}
             </option>
           ))}
         </Select>
         {isCustom && (
-          <Input
-            className="mt-2"
-            placeholder="Custom item name"
-            value={item.name}
-            onChange={(e) => onChange({ ...item, name: e.target.value })}
-          />
+          <div className="mt-2 space-y-2">
+            <Input
+              placeholder="Custom item name"
+              value={item.name}
+              onChange={(e) => onChange({ ...item, name: e.target.value })}
+            />
+            <Select
+              value={item.unit}
+              onChange={(e) => {
+                const unit = e.target.value as PricingUnit;
+                onChange({ ...item, unit, quantity: unit === "kg" ? 500 : 1 });
+              }}
+            >
+              <option value="piece">Priced as: fixed price</option>
+              <option value="kg">Priced as: by weight (₹/kg)</option>
+            </Select>
+          </div>
         )}
       </div>
 
       <div>
-        <label className="mb-1 block text-xs text-charcoal-muted sm:hidden">Quantity</label>
+        <label className="mb-1 block text-xs text-charcoal-muted sm:hidden">
+          {isWeight ? "Weight (g)" : "Quantity"}
+        </label>
         <Input
           type="number"
-          min="1"
-          step="1"
+          min={isWeight ? "1" : "1"}
+          step={isWeight ? "10" : "1"}
           value={item.quantity}
           onChange={(e) => onChange({ ...item, quantity: Number(e.target.value) })}
         />
       </div>
 
       <div>
-        <label className="mb-1 block text-xs text-charcoal-muted sm:hidden">Unit price (₹)</label>
+        <label className="mb-1 block text-xs text-charcoal-muted sm:hidden">
+          {isWeight ? "Price per kg (₹)" : "Unit price (₹)"}
+        </label>
         <Input
           type="number"
           min="0"
@@ -89,7 +116,7 @@ export function OrderItemRow({ item, products, onChange, onRemove, canRemove }: 
       <div>
         <label className="mb-1 block text-xs text-charcoal-muted sm:hidden">Total</label>
         <p className="flex h-11 items-center text-sm font-medium text-charcoal">
-          {formatCurrency(item.quantity * item.unitPrice)}
+          {formatCurrency(calcItemTotal(item.quantity, item.unitPrice, item.unit))}
         </p>
       </div>
 

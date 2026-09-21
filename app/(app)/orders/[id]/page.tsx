@@ -7,7 +7,7 @@ import { Badge, paymentStatusTone } from "@/components/ui/badge";
 import { Table, Thead, Tbody, Tr, Th, Td } from "@/components/ui/table";
 import { OrderStatusStepper } from "@/components/orders/order-status-stepper";
 import { CancelOrderButton } from "@/components/orders/cancel-order-button";
-import { paymentStatusFor } from "@/lib/order-utils";
+import { paymentStatusFor, formatWeight, type PricingUnit } from "@/lib/order-utils";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/format";
 
 export default async function OrderDetailPage({
@@ -33,7 +33,7 @@ export default async function OrderDetailPage({
   const customer = order.customers as unknown as { id: string; name: string; phone: string | null } | null;
 
   const [{ data: items }, { data: payments }] = await Promise.all([
-    supabase.from("order_items").select("id, name, quantity, unit_price, total").eq("order_id", id),
+    supabase.from("order_items").select("id, name, unit, quantity, unit_price, total").eq("order_id", id),
     supabase
       .from("payments")
       .select("id, amount, method, payment_date, notes")
@@ -100,14 +100,22 @@ export default async function OrderDetailPage({
                 </Tr>
               </Thead>
               <Tbody>
-                {(items ?? []).map((item) => (
-                  <Tr key={item.id}>
-                    <Td className="font-medium text-charcoal">{item.name}</Td>
-                    <Td className="text-charcoal-muted">{item.quantity}</Td>
-                    <Td className="text-charcoal-muted">{formatCurrency(item.unit_price)}</Td>
-                    <Td>{formatCurrency(item.total)}</Td>
-                  </Tr>
-                ))}
+                {(items ?? []).map((item) => {
+                  const unit = (item.unit ?? "piece") as PricingUnit;
+                  return (
+                    <Tr key={item.id}>
+                      <Td className="font-medium text-charcoal">{item.name}</Td>
+                      <Td className="text-charcoal-muted">
+                        {unit === "kg" ? formatWeight(item.quantity) : item.quantity}
+                      </Td>
+                      <Td className="text-charcoal-muted">
+                        {formatCurrency(item.unit_price)}
+                        {unit === "kg" ? "/kg" : ""}
+                      </Td>
+                      <Td>{formatCurrency(item.total)}</Td>
+                    </Tr>
+                  );
+                })}
               </Tbody>
             </Table>
           </Card>

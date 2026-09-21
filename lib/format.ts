@@ -11,6 +11,12 @@ export function formatCurrency(amount: number, currency: string = "INR"): string
   }).format(amount);
 }
 
+/** A product's price, unit-aware: "₹1,200" for a piece item, "₹800/kg" for a weight item. */
+export function formatPrice(price: number, pricingUnit: "piece" | "kg"): string {
+  const base = formatCurrency(price);
+  return pricingUnit === "kg" ? `${base}/kg` : base;
+}
+
 export function formatDate(value: string | Date): string {
   const date = typeof value === "string" ? new Date(value) : value;
   return new Intl.DateTimeFormat("en-IN", {

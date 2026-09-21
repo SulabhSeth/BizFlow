@@ -13,6 +13,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { OrderItemRow, type OrderItemState } from "./order-item-row";
 import { CustomerFormModal } from "@/components/customers/customer-form";
+import { calcItemTotal, type PricingUnit } from "@/lib/order-utils";
 import { formatCurrency } from "@/lib/format";
 
 interface CustomerOption {
@@ -25,6 +26,7 @@ interface ProductOption {
   id: string;
   name: string;
   price: number;
+  pricingUnit: PricingUnit;
 }
 
 interface OrderFormProps {
@@ -36,7 +38,7 @@ interface OrderFormProps {
 let itemKeySeq = 0;
 function newItem(): OrderItemState {
   itemKeySeq += 1;
-  return { key: `item-${itemKeySeq}`, productId: null, name: "", quantity: 1, unitPrice: 0 };
+  return { key: `item-${itemKeySeq}`, productId: null, name: "", unit: "piece", quantity: 1, unitPrice: 0 };
 }
 
 const initialState: OrderFormState = {};
@@ -52,7 +54,7 @@ export function OrderForm({ customers, products, initialCustomerId }: OrderFormP
   const [advancePaid, setAdvancePaid] = useState(0);
 
   const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0),
+    () => items.reduce((sum, item) => sum + calcItemTotal(item.quantity, item.unitPrice, item.unit), 0),
     [items],
   );
   const total = Math.max(subtotal - discount + deliveryFee, 0);
@@ -77,6 +79,7 @@ export function OrderForm({ customers, products, initialCustomerId }: OrderFormP
             items.map((item) => ({
               productId: item.productId,
               name: item.name,
+              unit: item.unit,
               quantity: item.quantity,
               unitPrice: item.unitPrice,
             })),
@@ -193,7 +196,7 @@ export function OrderForm({ customers, products, initialCustomerId }: OrderFormP
               />
             </FormField>
             <FormField label="Payment method" htmlFor="paymentMethod" error={state.fieldErrors?.paymentMethod}>
-              <Select id="paymentMethod" name="paymentMethod" defaultValue="" disabled={advancePaid <= 0}>
+              <Select id="paymentMethod" name="paymentMethod" defaultValue="Cash">
                 <option value="">Select method…</option>
                 {paymentMethods.map((m) => (
                   <option key={m} value={m}>

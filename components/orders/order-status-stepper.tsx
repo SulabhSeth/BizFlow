@@ -4,7 +4,8 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { updateOrderStatus, orderStatuses } from "@/actions/orders";
+import { updateOrderStatus } from "@/actions/orders";
+import { orderStatuses } from "@/lib/validations/order";
 import { useToast } from "@/components/ui/toast";
 
 const activeSteps = orderStatuses.filter((s) => s !== "Cancelled");
