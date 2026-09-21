@@ -1,0 +1,2 @@
+- `ui/` — small reusable primitives (Button, Input, Modal, Table, Badge, Card, form fields, EmptyState, LoadingState, Toast)
+- `layout/` — app shell pieces (sidebar, mobile nav, header)

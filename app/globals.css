@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@import "@fontsource-variable/fraunces/standard.css";
+@import "@fontsource-variable/manrope";
+
+/*
+  BizFlow design tokens.
+
+  Palette is warm and food-adjacent without leaning on the generic
+  "AI cream + terracotta" combo wholesale: the terracotta here is a
+  deeper, dustier burnt-clay rather than the bright coral tell, and
+  it is reserved for a small number of interactive/emphasis moments
+  rather than washed across the page as decoration.
+
+  Fraunces (a warm, slightly characterful serif) is used only for
+  brand moments and page-level headings — the wordmark, the
+  dashboard greeting. Everything else, including all data, tables,
+  labels and form fields, uses Manrope so the product stays legible
+  and fast to scan for daily bakery-owner use.
+*/
+:root {
+  --color-cream: #faf6ee;
+  --color-cream-soft: #f3ede0;
+  --color-surface: #fffdf9;
+  --color-charcoal: #2a241d;
+  --color-charcoal-muted: #6b5c4d;
+  --color-brown: #8a6a4f;
+  --color-terracotta: #b85c38;
+  --color-terracotta-soft: #f0ddd0;
+  --color-border: #e7ded0;
+  --color-border-strong: #d8cbb4;
+
+  --color-success: #4c7a5e;
+  --color-success-soft: #e1ede4;
+  --color-warning: #b8863c;
+  --color-warning-soft: #f4e9d6;
+  --color-danger: #b3503f;
+  --color-danger-soft: #f3e0db;
+
+  --radius-card: 0.875rem;
+  --radius-control: 0.5rem;
+
+  --shadow-card: 0 1px 2px rgba(42, 36, 29, 0.04), 0 8px 20px -12px rgba(42, 36, 29, 0.12);
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-cream-soft: var(--color-cream-soft);
+  --color-surface: var(--color-surface);
+  --color-charcoal: var(--color-charcoal);
+  --color-charcoal-muted: var(--color-charcoal-muted);
+  --color-brown: var(--color-brown);
+  --color-terracotta: var(--color-terracotta);
+  --color-terracotta-soft: var(--color-terracotta-soft);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+
+  --color-success: var(--color-success);
+  --color-success-soft: var(--color-success-soft);
+  --color-warning: var(--color-warning);
+  --color-warning-soft: var(--color-warning-soft);
+  --color-danger: var(--color-danger);
+  --color-danger-soft: var(--color-danger-soft);
+
+  --radius-card: var(--radius-card);
+  --radius-control: var(--radius-control);
+
+  --font-sans: "Manrope Variable", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces Variable", "Fraunces", ui-serif, Georgia, serif;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+}
