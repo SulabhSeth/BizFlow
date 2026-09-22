@@ -13,7 +13,7 @@ const actions: QuickAction[] = [
     { label: "New Order", href: "/orders/new", icon: ClipboardList },
   { label: "Add Customer", href: "/customers?new=1", icon: UserPlus },
   { label: "Add Product", href: "/products?new=1", icon: PackagePlus },
-  { label: "Create Invoice", href: "/invoices", icon: FilePlus },
+    { label: "Create Invoice", href: "/invoices?new=1", icon: FilePlus },
 ];
 
 export function QuickActions() {

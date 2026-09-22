@@ -9,6 +9,7 @@ import { OrderStatusStepper } from "@/components/orders/order-status-stepper";
 import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { paymentStatusFor, formatWeight, type PricingUnit } from "@/lib/order-utils";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/format";
+import { CreateInvoiceButton } from "@/components/invoices/create-invoice-button";
 
 export default async function OrderDetailPage({
   params,
@@ -32,14 +33,15 @@ export default async function OrderDetailPage({
 
   const customer = order.customers as unknown as { id: string; name: string; phone: string | null } | null;
 
-  const [{ data: items }, { data: payments }] = await Promise.all([
-    supabase.from("order_items").select("id, name, unit, quantity, unit_price, total").eq("order_id", id),
-    supabase
-      .from("payments")
-      .select("id, amount, method, payment_date, notes")
-      .eq("order_id", id)
-      .order("payment_date", { ascending: false }),
-  ]);
+  const [{ data: items }, { data: payments }, { data: existingInvoice }] = await Promise.all([
+  supabase.from("order_items").select("id, name, unit, quantity, unit_price, total").eq("order_id", id),
+  supabase
+    .from("payments")
+    .select("id, amount, method, payment_date, notes")
+    .eq("order_id", id)
+    .order("payment_date", { ascending: false }),
+  supabase.from("invoices").select("id").eq("order_id", id).maybeSingle(),
+]);
 
   const paid = (payments ?? []).reduce((sum, p) => sum + p.amount, 0);
   const balance = Math.max(order.total - paid, 0);
@@ -77,7 +79,10 @@ export default async function OrderDetailPage({
             </Link>
           )}
         </div>
-        {!isCancelled && <CancelOrderButton orderId={order.id} />}
+               <div className="flex gap-2">
+          <CreateInvoiceButton orderId={order.id} existingInvoiceId={existingInvoice?.id ?? null} />
+          {!isCancelled && <CancelOrderButton orderId={order.id} />}
+        </div>
       </div>
 
       {!isCancelled && (
