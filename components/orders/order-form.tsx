@@ -124,6 +124,14 @@ export function OrderForm({ customers, products, initialCustomerId }: OrderFormP
               Add item
             </Button>
           </div>
+                    <div className="hidden gap-3 px-2 text-xs font-medium text-charcoal-muted sm:grid sm:grid-cols-[1.5fr_1fr_0.8fr_0.8fr_auto]">
+            <span>Item</span>
+            <span>Qty / Weight(gm)</span>
+            <span>Price</span>
+            <span>Total</span>
+            <span />
+          </div>
+          <div className="space-y-3"></div>
           <div className="space-y-3">
             {items.map((item) => (
               <OrderItemRow

@@ -87,16 +87,17 @@ export function OrderItemRow({ item, products, onChange, onRemove, canRemove }: 
         )}
       </div>
 
-      <div>
+            <div>
         <label className="mb-1 block text-xs text-charcoal-muted sm:hidden">
-          {isWeight ? "Weight (g)" : "Quantity"}
+          {isWeight ? "Weight (grams)" : "Quantity"}
         </label>
         <Input
           type="number"
-          min={isWeight ? "1" : "1"}
-          step={isWeight ? "10" : "1"}
+          min="1"
+          step="1"
           value={item.quantity}
           onChange={(e) => onChange({ ...item, quantity: Number(e.target.value) })}
+          placeholder={isWeight ? "e.g. 500 for 500g, 1000 for 1kg" : undefined}
         />
       </div>
 
@@ -109,7 +110,9 @@ export function OrderItemRow({ item, products, onChange, onRemove, canRemove }: 
           min="0"
           step="1"
           value={item.unitPrice}
+          disabled={!isCustom}
           onChange={(e) => onChange({ ...item, unitPrice: Number(e.target.value) })}
+          title={!isCustom ? "Price is set on the product — edit it from Products if it's changed." : undefined}
         />
       </div>
 
