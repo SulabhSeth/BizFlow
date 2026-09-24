@@ -10,6 +10,7 @@ import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { paymentStatusFor, formatWeight, type PricingUnit } from "@/lib/order-utils";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/format";
 import { CreateInvoiceButton } from "@/components/invoices/create-invoice-button";
+import { RecordPaymentButton } from "@/components/orders/record-payment-button";
 
 export default async function OrderDetailPage({
   params,
@@ -142,8 +143,11 @@ export default async function OrderDetailPage({
             </Card>
           )}
 
-          <Card className="p-5">
-            <p className="mb-3 font-medium text-charcoal">Payment history</p>
+                    <Card className="p-5">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="font-medium text-charcoal">Payment history</p>
+              {!isCancelled && <RecordPaymentButton orderId={order.id} balance={balance} />}
+            </div>
             {(payments ?? []).length === 0 ? (
               <p className="text-sm text-charcoal-muted">No payments recorded yet.</p>
             ) : (
