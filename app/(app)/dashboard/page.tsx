@@ -43,15 +43,26 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Total Revenue" value={formatCurrency(stats.totalRevenue)} icon={IndianRupee} />
-        <StatCard label="Total Orders" value={String(stats.totalOrders)} icon={ClipboardList} />
+                <StatCard label="Total Revenue" value={formatCurrency(stats.totalRevenue)} icon={IndianRupee} />
+        <StatCard
+          label="Total Orders"
+          value={String(stats.totalOrders)}
+          icon={ClipboardList}
+          href="/orders"
+        />
         <StatCard
           label="Pending Payments"
           value={formatCurrency(stats.pendingPayments)}
           icon={Clock}
           tone={stats.pendingPayments > 0 ? "danger" : "neutral"}
+          href="/orders?payment=unpaid"
         />
-        <StatCard label="Upcoming Deliveries" value={String(stats.upcomingDeliveries)} icon={Truck} />
+        <StatCard
+          label="Upcoming Deliveries"
+          value={String(stats.upcomingDeliveries)}
+          icon={Truck}
+          href="/orders?delivery=upcoming"
+        />
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">

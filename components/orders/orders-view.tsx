@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Search, ClipboardList } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -10,8 +11,6 @@ import { Badge, orderStatusTone, paymentStatusTone } from "@/components/ui/badge
 import { EmptyState } from "@/components/ui/empty-state";
 import { orderStatuses } from "@/lib/validations/order";
 import { formatCurrency, formatDate } from "@/lib/format";
-
-const paymentStatuses = ["Paid", "Partially Paid", "Pending"] as const;
 
 export interface OrderRow {
   id: string;
@@ -26,27 +25,51 @@ export interface OrderRow {
   status: string;
 }
 
-// const orderStatuses = ["New", "Confirmed", "Preparing", "Ready", "Delivered", "Cancelled"] as const;
-// const paymentStatuses = ["Paid", "Partially Paid", "Pending"] as const;
+const paymentFilterOptions = [
+  { value: "Paid", label: "Paid" },
+  { value: "Partially Paid", label: "Partially Paid" },
+  { value: "Pending", label: "Pending" },
+  { value: "unpaid", label: "Pending & Partial" },
+];
 
 export function OrdersView({ orders }: { orders: OrderRow[] }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
-  const [paymentStatus, setPaymentStatus] = useState("all");
+  const [paymentStatus, setPaymentStatus] = useState(() => searchParams.get("payment") ?? "all");
   const [date, setDate] = useState("");
+  const [deliveryScope, setDeliveryScope] = useState<"all" | "upcoming">(() =>
+    searchParams.get("delivery") === "upcoming" ? "upcoming" : "all",
+  );
+
+  useEffect(() => {
+    if (searchParams.get("payment") || searchParams.get("delivery")) {
+      router.replace("/orders");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
+    const today = new Date().toISOString().slice(0, 10);
     return orders.filter((o) => {
       if (q && !o.orderNumber.toLowerCase().includes(q) && !o.customerName.toLowerCase().includes(q)) {
         return false;
       }
       if (status !== "all" && o.status !== status) return false;
-      if (paymentStatus !== "all" && o.paymentStatus !== paymentStatus) return false;
+      if (paymentStatus === "unpaid" && o.paymentStatus === "Paid") return false;
+      if (paymentStatus !== "all" && paymentStatus !== "unpaid" && o.paymentStatus !== paymentStatus) {
+        return false;
+      }
       if (date && o.deliveryDate !== date) return false;
+      if (deliveryScope === "upcoming") {
+        if (o.deliveryDate < today) return false;
+        if (o.status === "Delivered" || o.status === "Cancelled") return false;
+      }
       return true;
     });
-  }, [orders, query, status, paymentStatus, date]);
+  }, [orders, query, status, paymentStatus, date, deliveryScope]);
 
   return (
     <div className="px-6 py-8 md:px-10">
@@ -90,12 +113,23 @@ export function OrdersView({ orders }: { orders: OrderRow[] }) {
           className="sm:w-44"
         >
           <option value="all">All payments</option>
-          {paymentStatuses.map((p) => (
-            <option key={p} value={p}>
-              {p}
+          {paymentFilterOptions.map((p) => (
+            <option key={p.value} value={p.value}>
+              {p.label}
             </option>
           ))}
         </Select>
+        <button
+          type="button"
+          onClick={() => setDeliveryScope((prev) => (prev === "upcoming" ? "all" : "upcoming"))}
+          className={`h-11 rounded-[var(--radius-control)] border px-3 text-sm font-medium transition-colors ${
+            deliveryScope === "upcoming"
+              ? "border-terracotta bg-terracotta-soft text-terracotta"
+              : "border-border-strong bg-surface text-charcoal-muted hover:bg-cream-soft"
+          }`}
+        >
+          Upcoming only
+        </button>
         <Input
           type="date"
           value={date}
@@ -103,13 +137,14 @@ export function OrdersView({ orders }: { orders: OrderRow[] }) {
           className="sm:w-44"
           aria-label="Filter by delivery date"
         />
-        {(query || status !== "all" || paymentStatus !== "all" || date) && (
+        {(query || status !== "all" || paymentStatus !== "all" || date || deliveryScope !== "all") && (
           <button
             onClick={() => {
               setQuery("");
               setStatus("all");
               setPaymentStatus("all");
               setDate("");
+              setDeliveryScope("all");
             }}
             className="text-sm text-charcoal-muted underline hover:text-charcoal"
           >
