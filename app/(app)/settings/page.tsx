@@ -5,11 +5,12 @@ export default async function SettingsPage() {
   const supabase = await createClient();
 
   const { data: business } = await supabase
-    .from("businesses")
-    .select(
-      "name, owner_name, phone, email, address, website, instagram, gstin, invoice_prefix, currency, description, logo_url",
-    )
-    .single();
+  .from("businesses")
+  .select(
+    "name, owner_name, phone, email, address, website, instagram, gstin, invoice_prefix, currency, description, logo_url, bank_account_name, bank_name, bank_account_number, bank_ifsc, upi_id"
+  )
+  .single();
+
 
   return (
     <div className="px-6 py-8 md:px-10">
