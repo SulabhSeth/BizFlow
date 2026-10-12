@@ -19,6 +19,11 @@ export interface BusinessSettings {
   website: string | null;
   instagram: string | null;
   gstin: string | null;
+    bank_account_name: string | null;
+  bank_name: string | null;
+  bank_account_number: string | null;
+  bank_ifsc: string | null;
+  upi_id: string | null;
   invoice_prefix: string;
   currency: string;
   description: string | null;
@@ -87,7 +92,40 @@ export function SettingsForm({ business }: { business: BusinessSettings }) {
           </FormField>
         </div>
       </Card>
-
+      <Card className="p-5">
+        <p className="font-medium text-charcoal">Payment details</p>
+        <p className="mb-4 text-xs text-charcoal-muted">
+          Shown on your invoices so customers can pay you. Leave all blank to hide this section.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormField label="Account holder name" htmlFor="bankAccountName" error={errors.bankAccountName}>
+            <Input
+              id="bankAccountName"
+              name="bankAccountName"
+              defaultValue={business.bank_account_name ?? ""}
+              placeholder="Tulsi Bakes"
+            />
+          </FormField>
+          <FormField label="Bank name" htmlFor="bankName" error={errors.bankName}>
+            <Input id="bankName" name="bankName" defaultValue={business.bank_name ?? ""} placeholder="HDFC Bank" />
+          </FormField>
+          <FormField label="Account number" htmlFor="bankAccountNumber" error={errors.bankAccountNumber}>
+            <Input
+              id="bankAccountNumber"
+              name="bankAccountNumber"
+              inputMode="numeric"
+              defaultValue={business.bank_account_number ?? ""}
+              placeholder="50100123456789"
+            />
+          </FormField>
+          <FormField label="IFSC code" htmlFor="bankIfsc" error={errors.bankIfsc}>
+            <Input id="bankIfsc" name="bankIfsc" defaultValue={business.bank_ifsc ?? ""} placeholder="HDFC0001234" />
+          </FormField>
+          <FormField label="UPI ID" htmlFor="upiId" error={errors.upiId}>
+            <Input id="upiId" name="upiId" defaultValue={business.upi_id ?? ""} placeholder="tulsibakes@okhdfcbank" />
+          </FormField>
+        </div>
+      </Card>
       <Card className="p-5">
         <p className="mb-4 font-medium text-charcoal">Invoicing</p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

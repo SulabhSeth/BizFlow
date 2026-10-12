@@ -28,6 +28,27 @@ export const settingsSchema = z.object({
     .optional()
     .or(z.literal(""))
     .refine((v) => !v || /^[0-9A-Z]{15}$/.test(v), "GSTIN should be 15 letters/numbers"),
+      bankAccountName: optionalText(100),
+  bankName: optionalText(100),
+  bankAccountNumber: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .refine((v) => !v || /^[0-9]{9,18}$/.test(v), "Account number should be 9–18 digits"),
+  bankIfsc: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .optional()
+    .or(z.literal(""))
+    .refine((v) => !v || /^[A-Z]{4}0[A-Z0-9]{6}$/.test(v), "Enter a valid IFSC code (e.g. HDFC0001234)"),
+  upiId: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .refine((v) => !v || /^[\w.\-]{2,}@[\w]{2,}$/.test(v), "Enter a valid UPI ID (e.g. name@bank)"),
   invoicePrefix: z
     .string()
     .trim()

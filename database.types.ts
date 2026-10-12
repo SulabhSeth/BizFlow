@@ -10,13 +10,17 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
       businesses: {
         Row: {
           address: string | null
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_ifsc: string | null
+          bank_name: string | null
           created_at: string | null
           currency: string
           description: string | null
@@ -30,10 +34,15 @@ export type Database = {
           owner_name: string | null
           phone: string | null
           updated_at: string | null
+          upi_id: string | null
           website: string | null
         }
         Insert: {
           address?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          bank_name?: string | null
           created_at?: string | null
           currency?: string
           description?: string | null
@@ -47,10 +56,15 @@ export type Database = {
           owner_name?: string | null
           phone?: string | null
           updated_at?: string | null
+          upi_id?: string | null
           website?: string | null
         }
         Update: {
           address?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          bank_name?: string | null
           created_at?: string | null
           currency?: string
           description?: string | null
@@ -64,6 +78,7 @@ export type Database = {
           owner_name?: string | null
           phone?: string | null
           updated_at?: string | null
+          upi_id?: string | null
           website?: string | null
         }
         Relationships: []

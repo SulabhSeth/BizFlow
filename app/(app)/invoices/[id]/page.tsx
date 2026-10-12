@@ -37,7 +37,7 @@ export default async function InvoiceDetailPage({
   const [{ data: business }, { data: items }] = await Promise.all([
     supabase
       .from("businesses")
-      .select("name, address, phone, email, gstin, logo_url, currency")
+            .select("name, address, phone, email, gstin, logo_url, currency, bank_account_name, bank_name, bank_account_number, bank_ifsc, upi_id")
       .eq("id", invoice.business_id)
       .single(),
     supabase.from("invoice_items").select("id, description, quantity, unit_price, amount").eq("invoice_id", id),
@@ -141,7 +141,43 @@ export default async function InvoiceDetailPage({
             </div>
           </div>
         </div>
-
+        {(business?.bank_account_number || business?.upi_id || business?.bank_account_name) && (
+          <div className="mt-8 border-t border-border pt-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-charcoal-muted">Payment details</p>
+            <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
+              {business.bank_account_name && (
+                <>
+                  <dt className="text-charcoal-muted">Account name</dt>
+                  <dd className="text-charcoal">{business.bank_account_name}</dd>
+                </>
+              )}
+              {business.bank_name && (
+                <>
+                  <dt className="text-charcoal-muted">Bank</dt>
+                  <dd className="text-charcoal">{business.bank_name}</dd>
+                </>
+              )}
+              {business.bank_account_number && (
+                <>
+                  <dt className="text-charcoal-muted">Account number</dt>
+                  <dd className="text-charcoal">{business.bank_account_number}</dd>
+                </>
+              )}
+              {business.bank_ifsc && (
+                <>
+                  <dt className="text-charcoal-muted">IFSC</dt>
+                  <dd className="text-charcoal">{business.bank_ifsc}</dd>
+                </>
+              )}
+              {business.upi_id && (
+                <>
+                  <dt className="text-charcoal-muted">UPI ID</dt>
+                  <dd className="text-charcoal">{business.upi_id}</dd>
+                </>
+              )}
+            </dl>
+          </div>
+        )}
         {invoice.notes && (
           <div className="mt-8 border-t border-border pt-4">
             <p className="text-xs font-medium uppercase tracking-wide text-charcoal-muted">Notes</p>
